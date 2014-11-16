@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="author" content="Веб-студия «Мой голос»">
+    <meta name="description" content="Веб-студия «Мой голос»">
+    <meta name="keywords" content="веб, Веб-студия, разработка, php, html5, css3">
+    <meta name='yandex-verification' content='7b06ca2324c21a0d' />
+    <link href="/css/main.css" rel="stylesheet" type="text/css">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("div.container > header > div > figure > img").click(function(){
+                window.location = "/api/?projects=all";
+            });
+        });
+    </script>
+    <title>Веб-студия «Мой голос» - Главная</title>
+</head>
+<body>
+    <div class="container">
+        <header class="not-show-in-test">
+            <div>
+                <figure>
+                    <img src="/img/earth_001.jpg" alt="студия &laquo;Мой голос&raquo;">
+                </figure>
+            </div>
+        </header>
+        <footer class="not-show-in-test">
+            <div>
+                <div class="copyrights centered">
+                    &#169; 2007-2014 <a class="comment" href="http://web.moigolos.net">Веб-студия</a> «Мой голос».&nbsp;&nbsp;
+                    Поддержка проекта <a class="comment" href="http://www.moigolos.net">"Мой голос"</a>.&nbsp;&nbsp;
+                    Верстаем <a href="http://validator.w3.org/check?uri=http://web.moigolos.net/">W3C-кошерно</a> :)
+                </div>
+            </div>
+
+            <!-- Yandex.Metrika informer -->
+            <div style="position: absolute; top: 13px; right: 20px;">
+                <a href="https://metrika.yandex.ru/stat/?id=27041591&amp;from=informer" target="_blank" rel="nofollow"><img src="//bs.yandex.ru/informer/27041591/1_0_FFFFFFFF_EFEFEFFF_0_uniques" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (уникальные посетители)" /></a>
+            </div>
+            <!-- /Yandex.Metrika informer -->
+
+            <!-- Yandex.Metrika counter -->
+            <script type="text/javascript">
+                (function (d, w, c) {
+                    (w[c] = w[c] || []).push(function() {
+                        try {
+                            w.yaCounter27041591 = new Ya.Metrika({
+                                id:27041591,
+                                webvisor:true
+                            });
+                        } catch(e) { }
+                    });
+
+                    var n = d.getElementsByTagName("script")[0],
+                        s = d.createElement("script"),
+                        f = function () { n.parentNode.insertBefore(s, n); };
+                    s.type = "text/javascript";
+                    s.async = true;
+                    s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+                    if (w.opera == "[object Opera]") {
+                        d.addEventListener("DOMContentLoaded", f, false);
+                    } else { f(); }
+                })(document, window, "yandex_metrika_callbacks");
+            </script>
+            <noscript><div><img src="//mc.yandex.ru/watch/27041591" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+            <!-- /Yandex.Metrika counter -->
+
+        </footer>
+    </div>
+</body>
+</html>
