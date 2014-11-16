@@ -28,17 +28,25 @@ if ($_GET['create_db'] && $_GET['create_db'] == 'sqlite')
 {
     try
     {
-        $dbFile = dirname(__FILE__) . '/base.db';
+        $dbFile = dirname(__FILE__) . '/projects.db';
         $dbLink = new PDO('sqlite:' . $dbFile);
         $dbLink->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $dbLink->prepare('DELECT name FROM people')->execute();
+        // $dbLink->prepare('DELECT name FROM people')->execute();
+
+        foreach ($arDirData as $sDir)
+        {
+            $sDir = ((check2LvlDomain($sDir)) ? 'www.' : '') . $sDir;
+            $sQuery = "INSERT INTO pr_list (`name`, `desc`, `url`, `type`) values ('$sDir', '$sDir', 'http://$sDir/', 1)";
+            $dbStat = $dbLink->prepare($sQuery);  
+            $dbStat->execute();
+        }
 
         $dbLink = null;
     }  
     catch (PDOException $e)
     {
-        file_put_contents('PDOErrors.txt', $e->getMessage(), FILE_APPEND);
+        file_put_contents('PDOErrors.log', $e->getMessage(), FILE_APPEND);
         echo $e->getMessage();
     }
 }
