@@ -4,9 +4,9 @@
 
 body {
     font-family: sans-serif;
-    font-size: 12px;
-    color: #333;
-    background-color: #eee;
+    font-size: 11px;
+    color: #333333;
+    background-color: #eeeeee;
     margin: 7px 0 10px auto;
 }
 
@@ -18,7 +18,7 @@ a:hover {
     color: #e2a400;
 }
 
-h1 { font-size: 16px; margin: 10px 0px; text-indent: 8px; }
+h1 { font-size: 17px; margin: 10px 0px; }
 h2 { font-size: 15px; margin: 9px 0px; }
 h3 { font-size: 13px; margin: 8px 0px; }
 
@@ -26,53 +26,95 @@ h3 { font-size: 13px; margin: 8px 0px; }
  * Стили контейнеров
  */
 
-section, header, article, footer, nav
+section,
+header,
+article,
+footer,
+nav
 {
     display: block;
     outline: 0px solid red;
 }
 
 div.container {
-    width: 800px;
+    width: 1000px;
     margin: 0 auto;
-    padding: 10px 15px;
-    background-color: #fff;
+    background-color: #ffffff;
 
     border-radius: 20px;
-    border: 1px solid #eee;
-    box-shadow: 0 1px 3px #ddd;
+    border: 1px solid #eeeeee;
+    box-shadow: 0 1px 3px #dddddd;
 
     position: relative;
 }
 
-/**
- * Спецальные стили
- */
+div.container > header,
+div.container > article,
+div.container > footer {
+}
 
-.centered {
+div.container > footer {
+    padding: 20px 15px;
+}
+
+div.container > header > div,
+div.container > article > section,
+div.container > footer > div {
+    outline: 0px solid red;
+}
+
+div.container > header > div {
     text-align: center;
+    position: relative;
 }
 
-ul.all-projects  {
-    margin: 5px;
-    padding: 0;
-    margin-bottom: 7px;
+div.container > header > div > figure {
+    padding: 25px 0 10px;
 }
 
-ul.all-projects li {
-    padding: 3px 5px;
+div.container > header > div > figure > img {
+    cursor: pointer;
+}
+
+div.container > header > div > nav {
+    position: absolute;
+    top: 60px;
+    left: 135px;
+    width: 111px;
+    overflow: hidden;
+    background-color: #efefef;
+    text-align: left;
+    padding: 10px 25px;
+
+    border-radius: 20px;
+    border: 1px solid #eeeeee;
+}
+
+div.container > header > div > nav > ul {
     margin: 0;
-    list-style-position: inside;
+    padding: 3px;
+    list-style: none;
 }
 
-ul.all-projects li a {
+div.container > header > div > nav > ul > li {
+    margin: 2px;
+    padding: 4px;
+}
+
+div.container > header > div > nav > ul > li > a {
     text-decoration: none;
 }
 
-.debugger-pre-place {
-    background-color: #efefef;
-    padding: 5px 10px;
-    font-size: 11px;
+div.container > header > div > nav > ul > li > a:hover {
+    text-decoration: underline;
+}
+
+div.container > article > section {
+    padding: 0 50px 10px;
+}
+
+div.container > footer > div {
+    outline: 0px solid green;
 }
 
 .copyrights {
@@ -81,4 +123,71 @@ ul.all-projects li a {
 
 .copyrights a {
     font-size: 11px;
+}
+
+.centered {
+    text-align: center;
+}
+
+.debugger-pre-place {
+    background-color: #efefef;
+    padding: 5px 10px;
+    font-size: 11px;
+}
+
+/**
+ * Специальные стили
+ */
+
+.projects-container {
+    width: 800px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    background-color: #ffffff;
+
+    border-radius: 20px;
+    border: 1px solid #eeeeee;
+    box-shadow: 0 1px 3px #dddddd;
+
+    position: relative;
+
+    font-size: 12px;
+}
+
+.projects-container footer {
+    margin: 16px 0 6px;
+}
+
+.project-type {
+    margin: 10px auto;
+    padding: 5px 10px;
+    background-color: #eeeeee;
+
+    border-radius: 10px;
+    border: 1px solid #cccccc;
+    box-shadow: 0 1px 3px #dddddd;
+
+    position: relative;
+    }
+    div.empty {
+        margin: 10px 0;
+        padding: 2px 5px;
+        outline: 1px solid #cccccc;
+    }
+
+    .project-type h1 {
+        font-size: 16px;
+    }
+    .project-type h2 {
+        font-size: 14px;
+    }
+
+    ul.projects-list {
+        margin: 2px 0 10px 2px;
+        padding: 0;
+        list-style-position: inside;
+        }
+        ul.projects-list li {
+            padding: 0;
+            margin: 3px 0;
 }
