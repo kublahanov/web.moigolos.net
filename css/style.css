@@ -4,7 +4,7 @@
 
 body {
     font-family: sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     color: #333333;
     background-color: #eeeeee;
     margin: 7px 0 10px auto;
@@ -22,44 +22,22 @@ h1 { font-size: 17px; margin: 10px 0px; }
 h2 { font-size: 15px; margin: 9px 0px; }
 h3 { font-size: 13px; margin: 8px 0px; }
 
+ul {
+    margin: 3px 0;
+    padding: 0;
+    list-style-position: inside;
+    }
+    ul li {
+        padding: 0;
+        margin: 0;
+}
+
 /**
  * Стили контейнеров
  */
 
-section,
-header,
-article,
-footer,
-nav
-{
+section, header, article, footer, nav {
     display: block;
-    outline: 0px solid red;
-}
-
-div.container {
-    width: 1000px;
-    margin: 0 auto;
-    background-color: #ffffff;
-
-    border-radius: 20px;
-    border: 1px solid #eeeeee;
-    box-shadow: 0 1px 3px #dddddd;
-
-    position: relative;
-}
-
-div.container > header,
-div.container > article,
-div.container > footer {
-}
-
-div.container > footer {
-    padding: 20px 15px;
-}
-
-div.container > header > div,
-div.container > article > section,
-div.container > footer > div {
     outline: 0px solid red;
 }
 
@@ -74,47 +52,6 @@ div.container > header > div > figure {
 
 div.container > header > div > figure > img {
     cursor: pointer;
-}
-
-div.container > header > div > nav {
-    position: absolute;
-    top: 60px;
-    left: 135px;
-    width: 111px;
-    overflow: hidden;
-    background-color: #efefef;
-    text-align: left;
-    padding: 10px 25px;
-
-    border-radius: 20px;
-    border: 1px solid #eeeeee;
-}
-
-div.container > header > div > nav > ul {
-    margin: 0;
-    padding: 3px;
-    list-style: none;
-}
-
-div.container > header > div > nav > ul > li {
-    margin: 2px;
-    padding: 4px;
-}
-
-div.container > header > div > nav > ul > li > a {
-    text-decoration: none;
-}
-
-div.container > header > div > nav > ul > li > a:hover {
-    text-decoration: underline;
-}
-
-div.container > article > section {
-    padding: 0 50px 10px;
-}
-
-div.container > footer > div {
-    outline: 0px solid green;
 }
 
 .copyrights {
@@ -139,7 +76,7 @@ div.container > footer > div {
  * Специальные стили
  */
 
-.projects-container {
+.container {
     width: 800px;
     margin: 0 auto;
     padding: 10px 20px;
@@ -154,7 +91,7 @@ div.container > footer > div {
     font-size: 12px;
 }
 
-.projects-container footer {
+.container footer {
     margin: 16px 0 6px;
 }
 
@@ -182,6 +119,10 @@ div.container > footer > div {
         font-size: 14px;
     }
 
+    .project-type .description-inner {
+        padding: 3px 1px 4px;
+    }
+
     ul.projects-list {
         margin: 2px 0 10px 2px;
         padding: 0;
@@ -189,5 +130,141 @@ div.container > footer > div {
         }
         ul.projects-list li {
             padding: 0;
-            margin: 3px 0;
+            margin: 5px 0;
+            }
+        .portfolio ul.projects-list li {
+            padding: 0;
+            margin: 10px 0 10px;
+            }
+            .portfolio ul.projects-list li small {
+                color: #000000;
+                background-color: #ffffff;
+                margin: 0 2px 0 7px;
+                padding: 0 2px 0 5px;
+                font-size: 11px;
+            }
+            .portfolio ul.projects-list li span {
+                font-size: 11px;
+            }
+            .portfolio span.green {
+                color: green;
+            }
+            .portfolio span.red {
+                color: red;
+            }
+            ul.projects-list li a {
+                text-decoration: none;
+            }
+            ul.projects-list li div.comments {
+                margin: 3px auto 3px;
+                padding: 5px 7px;
+                border: 1px solid #cccccc;
+                border-radius: 5px;
+                font-size: 12px;
+                background-color: #dddddd;
+            }
+            ul.projects-list li div.project-info-link {
+                width: 30px;
+                cursor: pointer;
+                position: relative;
+                display: inline;
+            }
+            ul.projects-list li div.project-info {
+                display: none;
+                position: absolute;
+                width: 500px;
+                margin: 0;
+                padding: 5px 10px;
+                left: 10px;
+                top: -6px;
+                border: 1px solid #dddddd;
+                border-radius: 5px;
+                background-color: #ffffff;
+                z-index: 1;
+            }
+            ul.projects-list li div.project-info-link:hover {
+                color: #cc9400;
+            }
+            ul.projects-list li div.project-info-link:hover > div.project-info {
+                display: block;
+            }
+            ul.projects-list li div.project-info ul {
+                margin: 3px 0;
+                padding: 0;
+                list-style-position: inside;
+                list-style-type: disc;
+                }
+                ul.projects-list li div.project-info ul li {
+                    padding: 0;
+                    margin: 0;
+                    line-height: 12px;
+}
+
+.top-line {
+    overflow: hidden;
+    }
+    .top-line h1 {
+        display: block;
+        margin: 14px 10px 5px;
+        float: left;
+    }
+    .top-line ul {
+        display: block;
+        float: right;
+        margin: 7px 100px 6px 0;
+        padding: 7px 12px;
+        list-style-position: inside;
+        background-color: #eeeeee;
+        border: 1px solid #cccccc;
+        border-radius: 5px;
+        }
+        .top-line ul li {
+            float: left;
+            margin: 0 10px;
+            padding: 0;
+            }
+            .top-line ul li a {
+                color: #333333;
+                text-decoration: none;
+}
+
+.project-type blockquote {
+    color: #bbbbbb;
+    }
+    .project-type blockquote p {
+        margin: 2px;
+}
+.project-type:hover blockquote {
+    color: #666666;
+}
+.project-type .legend {
+    position: absolute;
+    right: 10px;
+    background-color: #ffffff;
+    font-size: 11px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 4px 10px;
+    top: 10px;
+    box-shadow: 2px 3px 10px #aaaaaa;
+}
+
+/**
+ * Переопределение стилей для Toasty
+ */
+
+.toasty_toastMsg {
+    background-color: #ffffff;
+    border-radius: 5px;
+    width: auto;
+    white-space: pre-line;
+}
+.toasty_toastMsg .toasty_autoHideTimer {
+    background-color: #cccccc;
+}
+.toasty_message {
+    width: 250px;
+    margin: 6px;
+    padding: 5px 12px 1px;
+    white-space: nowrap;
 }

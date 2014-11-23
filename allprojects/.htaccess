@@ -1,0 +1,17 @@
+RewriteEngine on
+Options +FollowSymLinks
+
+# Если каталог существует, то не изменяем URL, и завершаем обработку
+
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule .* - [L]
+
+# Если файл существует, то не изменяем URL, и завершаем обработку
+
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule .* - [L]
+
+RewriteBase /allprojects/
+RewriteRule ^(.*)$ detail.php?project_name=$1
+
+ErrorDocument 404 /allprojects/

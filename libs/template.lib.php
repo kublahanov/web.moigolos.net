@@ -1,3 +1,13 @@
+<?
+
+/**
+ * [showHead description]
+ * @param  array  $arParams [description]
+ * @return [type]           [description]
+ */
+function showHead($arParams = array())
+{
+?>
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -6,33 +16,48 @@
     <meta name="description" content="Веб-студия «Мой голос»">
     <meta name="keywords" content="веб, Веб-студия, разработка, php, html5, css3">
     <meta name='yandex-verification' content='7b06ca2324c21a0d' />
-    <link href="/css/style.css" rel="stylesheet" type="text/css">
     <link rel="shortcut icon" href="/favicon.ico">
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("div.container > header > div > figure > img").click(function(){
-                window.location = "/allprojects/";
-            });
-        });
-    </script>
-    <title>Веб-студия «Мой голос» - Главная</title>
+
+    <!-- script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script -->
+    <script type="text/javascript" src="http://yastatic.net/jquery/2.1.1/jquery.min.js"></script>
+    <script>if (!window.jQuery) { document.write('<script src="http://185.26.114.166/global/js/jquery-2.1.1.min.js"><\/script>'); }</script>
+    <script src="http://yastatic.net/modernizr/2.7.1/modernizr.min.js"></script>
+    <script>if (!window.Modernizr) { document.write('<script src="http://185.26.114.166/global/js/modernizr-2.8.3.min.js"><\/script>'); }</script>
+
+<?
+if (isset($arParams['HEAD_CONTENT']))
+{
+    echo $arParams['HEAD_CONTENT'];
+}
+?>
+
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <title>
+<?
+if (isset($arParams['TITLE']))
+{
+    echo $arParams['TITLE'];
+}
+?>
+    </title>
 </head>
-<body>
-    <div class="container">
-        <header class="not-show-in-test">
-            <div>
-                <figure>
-                    <img src="/img/earth_001.jpg" alt="студия &laquo;Мой голос&raquo;">
-                </figure>
-            </div>
-        </header>
+<?
+}
+
+/**
+ * [showBodyFooter description]
+ * @return [type] [description]
+ */
+function showBodyFooter()
+{
+?>
         <footer class="not-show-in-test">
+
             <div>
                 <div class="copyrights centered">
-                    &#169; 2007-2014 <a class="comment" href="http://web.moigolos.net">Веб-студия</a> «Мой голос».&nbsp;&nbsp;
-                    Поддержка проекта <a class="comment" href="http://www.moigolos.net">"Мой голос"</a>.&nbsp;&nbsp;
-                    Верстаем <a href="http://validator.w3.org/check?uri=http://web.moigolos.net/">W3C-кошерно</a> :)
+                    <?
+                        showGlobalProjectFooter();
+                    ?>
                 </div>
             </div>
 
@@ -70,6 +95,5 @@
             <!-- /Yandex.Metrika counter -->
 
         </footer>
-    </div>
-</body>
-</html>
+<?
+}

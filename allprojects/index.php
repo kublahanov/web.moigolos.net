@@ -1,61 +1,49 @@
 <?
+
 /*
- * API для получения данных извне
- * http://web.moigolos.net/pladm/phpliteadmin.php
+ * Страница отображения всех проектов
  */
-if (count($_GET) < 1)
-{
-    // die();
-}
 
-/**
- * Класс с полями для БД pr_list
+require($_SERVER['DOCUMENT_ROOT'] . '/libs/global.lib.php');
+require($_SERVER['DOCUMENT_ROOT'] . '/libs/allprojects.lib.php');
+require($_SERVER['DOCUMENT_ROOT'] . '/libs/template.lib.php');
+
+define ('ALL_PROJECTS_CONFIG_PATH', $_SERVER['DOCUMENT_ROOT'] . 'ts/');
+define ('ALL_PROJECTS_CACHETIMER_NAME', 'allprojects');
+define ('ALL_PROJECTS_CACHE_TIME', 60 * 60 * 24);
+define ('CLEAR_CACHE_GET_PARAMETER_NAME', 'clear_cache');
+define ('PROJECTS_DB_FILE_NAME', $_SERVER['DOCUMENT_ROOT'] . 'db/projects.db');
+define ('PROJECTS_HOME_DIR', '/var/www/');
+define ('PDO_ERROR_LOG_NAME', $_SERVER['DOCUMENT_ROOT'] . 'log/PDOErrors.log');
+define ('ENABLE_AUTO_PROJECT_ACTIVATION', true);
+define ('ALL_PROJECTS_LIST_TABLE_NAME', 'projects_list');
+define ('ALL_PROJECTS_TYPE_TABLE_NAME', 'projects_type');
+
+/*
+ * Устанавливаем время кеширования (сек) для данных о проектах
+ * получаемых из ФС
  */
-class myProject
-{
-    public static $sName, $sDesc, $sURL, $sType;
+myCacheTimer::setConfig(ALL_PROJECTS_CONFIG_PATH);
+myCacheTimer::addCacheTimer(ALL_PROJECTS_CACHETIMER_NAME, ALL_PROJECTS_CACHE_TIME);
 
-    /**
-     * [__construct description]
-     * @param [type] $sName [description]
-     * @param [type] $sDesc [description]
-     * @param [type] $sURL  [description]
-     * @param [type] $sType [description]
-     */
-    public function __construct($sName, $sDesc, $sURL, $sType)
-    {
-        self::$sName = $sName;
-        self::$sDesc = $sDesc;
-        self::$sURL = $sURL;
-        self::$sType = $sType;
-    }
-
-    /**
-     * [getArray description]
-     * @return [type] [description]
-     */
-    public static function getArray()
-    {
-        return array(
-            'name' => self::$sName,
-            'desc' => self::$sDesc,
-            'url' => self::$sURL,
-            'type' => self::$sType
-        );
-    }
-}
+/*
+ * Системное сообщение
+ */
+$sMessage = '';
 
 try
 {
     /*
      * Получаем информацию о проектах сохранённую в БД
      */
-    $dbFile = dirname(__FILE__) . '/projects.db';
+    $dbFile = PROJECTS_DB_FILE_NAME;
     $dbLink = new PDO('sqlite:' . $dbFile);
     $dbLink->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Список проектов
-    $sQuery = "SELECT * FROM pr_list";
+    /*
+     * Список проектов
+     */
+    $sQuery = "SELECT * FROM " . ALL_PROJECTS_LIST_TABLE_NAME . " ORDER BY sort ASC";
     $dbStat = $dbLink->query($sQuery);
     $dbStat->setFetchMode(PDO::FETCH_ASSOC);
     $arDBProjects = array();
@@ -65,10 +53,13 @@ try
         $arDBProjects[$arRow['name']] = $arRow;
     }
 
-    // Список типов проектов
-    $sQuery = "SELECT * FROM pr_type ORDER BY sort ASC";
+    /*
+     * Список типов проектов
+     */
+    $sQuery = "SELECT * FROM " . ALL_PROJECTS_TYPE_TABLE_NAME . " WHERE `active` = 1 ORDER BY sort ASC";
     $dbStat = $dbLink->query($sQuery);
     $dbStat->setFetchMode(PDO::FETCH_ASSOC);
+    $arDBTypes = array();
     $arDBTypesProjects = array();
     while ($arRow = $dbStat->fetch())
     {
@@ -76,7 +67,7 @@ try
         $arRow['projects'] = array();
         foreach ($arDBProjects as $iProjectsKey => $arProjectData)
         {
-            if ($arRow['id'] == $arProjectData['type'])
+            if (($arRow['id'] == $arProjectData['type']) && ($arProjectData['active'] == 1))
             {
                 $arDBProjects[$iProjectsKey]['checked'] = 1;
                 $arProjectData['checked'] = 1;
@@ -86,50 +77,91 @@ try
         $arDBTypesProjects[$arRow['id']] = $arRow;
     }
 
-    // Дополняем список нераспределёнными проектами
+    /*
+     * Дополняем список нераспределёнными проектами
+     */
     foreach ($arDBProjects as $iProjectsKey => $arProjectData)
     {
-        if ($arProjectData['checked'] === 0)
+        if (($arProjectData['checked'] === 0) && ($arProjectData['active'] == 1))
         {
             $arDBTypesProjects[0]['projects'][] = $arProjectData;
-            // $arProjectData[$iProjectsKey]['checked'] = 1;
         }
     }
 
     /*
-     * Получаем информацию о проектах из ФС.
-     * Сканируем корневую директорию на наличие проектов.
-     * Выбираем только папки с .ru и .net.
+     * Если истекло время кеширования или кеш очищается принудительно -
+     * обновляем данные о проектах
      */
-    $sHomeDir = '/var/www/';
-    $arFSProjects = scandir($sHomeDir);
-    foreach ($arFSProjects as $iKey => $sDir)
+    if (myCacheTimer::checkTimeIsOver(ALL_PROJECTS_CACHETIMER_NAME) || isset($_GET[CLEAR_CACHE_GET_PARAMETER_NAME]))
     {
-        if ((strpos($sDir, '.ru') === false) && (strpos($sDir, '.net') === false))
+        /*
+         * Получаем информацию о проектах из ФС.
+         * Сканируем корневую директорию на наличие проектов.
+         * Выбираем только папки с .ru и .net.
+         */
+        $sHomeDir = PROJECTS_HOME_DIR;
+        $arFSProjects = scandir($sHomeDir);
+        foreach ($arFSProjects as $iKey => $sDir)
         {
-            unset($arFSProjects[$iKey]);
-            continue;
+            $arMatches = array();
+            $sPattern = '/(\.ru$|\.com$|\.net$)/';
+            preg_match($sPattern, $sDir, $arMatches);
+            if (count($arMatches) < 1)
+            {
+                unset($arFSProjects[$iKey]);
+                continue;
+            }
+            $arFSProjects[$iKey] = ((check2LvlDomain($sDir)) ? 'www.' : '') . $sDir;
         }
-        $arFSProjects[$iKey] = ((check2LvlDomain($sDir)) ? 'www.' : '') . $sDir;
-    }
 
-    /*
-     * Сравниваем данные из БД и из ФС
-     */
-    foreach ($arFSProjects as $sDir)
-    {
-        if (array_key_exists($sDir, $arDBProjects))
+        /*
+         * Сравниваем данные из БД и из ФС
+         */
+        foreach ($arFSProjects as $sDir)
         {
-            // echo "- найдено: $sDir<br>";
+            /*
+             * Если проект отсутствует в БД, но есть в ФС -
+             * добавляем его в нераспределённые
+             */
+            if (!array_key_exists($sDir, $arDBProjects))
+            {
+                $sMessage .= " Добавлено: $sDir<br>";
+                $PROJECT = new myProject($sDir, $sDir, 'http://' . $sDir . '/', 0);
+                $sQuery = "INSERT INTO " . ALL_PROJECTS_LIST_TABLE_NAME . " (`name`, `desc`, `url`, `type`) values (:name, :desc, :url, :type)";
+                $dbStat = $dbLink->prepare($sQuery);
+                $dbStat->execute($PROJECT::getArray());
+            }
+
+            /*
+             * Если проект в БД не активен, но есть в ФС -
+             * активируем его
+             */
+            else
+            {
+                if (ENABLE_AUTO_PROJECT_ACTIVATION && ($arDBProjects[$sDir]['active'] == 0))
+                {
+                    $sMessage .= " Активировано: $sDir<br>";
+                    $sQuery = "UPDATE " . ALL_PROJECTS_LIST_TABLE_NAME . " SET `active` = 1 WHERE name = '$sDir'";
+                    $dbStat = $dbLink->prepare($sQuery);
+                    $dbStat->execute();
+                }
+            }
         }
-        else
+
+        /*
+         * Если проект есть в БД, но отсутствует в ФС -
+         * деактивируем его
+         */
+        foreach ($arDBProjects as $arDBProject)
         {
-            // echo "- не найдено: $sDir<br>";
-            echo " Добавлено: $sDir<br>";
-            $PROJECT = new myProject($sDir, $sDir, 'http://' . $sDir . '/', 0);
-            $sQuery = "INSERT INTO pr_list (`name`, `desc`, `url`, `type`) values (:name, :desc, :url, :type)";
-            $dbStat = $dbLink->prepare($sQuery);
-            $dbStat->execute($PROJECT::getArray());
+            $sDir = $arDBProject['name'];
+            if (!in_array($sDir, $arFSProjects))
+            {
+                $sMessage .= " Деактивировано: $sDir<br>";
+                $sQuery = "UPDATE " . ALL_PROJECTS_LIST_TABLE_NAME . " SET `active` = 0 WHERE name = '$sDir'";
+                $dbStat = $dbLink->prepare($sQuery);
+                $dbStat->execute();
+            }
         }
     }
 
@@ -137,27 +169,52 @@ try
 }
 catch (PDOException $e)
 {
-    file_put_contents('PDOErrors.log', $e->getMessage() . PHP_EOL, FILE_APPEND);
-    echo $e->getMessage();
+    file_put_contents(PDO_ERROR_LOG_NAME, $e->getMessage() . PHP_EOL, FILE_APPEND);
+    $sMessage = $e->getMessage();
 }
 
+$sLinkToRefresh = "<br><a href='/allprojects/'>Обновить</a>";
+$sJSQuery = ($sMessage !== '') ?
+    '
+            $().toasty({
+                message: "' . $sMessage . $sLinkToRefresh . '",
+                position: "tc",
+                autoHide: 10000
+            });
+' : '';
+
+showHead(
+    array(
+        'TITLE' => 'Веб-студия «Мой голос» - Все проекты',
+        'HEAD_CONTENT' => <<<HEREDOC
+    <!-- Toasty - A jQuery plugin for message toasts -->
+    <script type="text/javascript" src="/vendor/clifordshelton/toasty/toasty-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/vendor/clifordshelton/toasty/toasty-min.css">
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $sJSQuery
+        });
+    </script>
+HEREDOC
+    )
+);
 ?>
-<!DOCTYPE HTML>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="author" content="Веб-студия «Мой голос»">
-    <meta name="description" content="Веб-студия «Мой голос»">
-    <meta name="keywords" content="веб, Веб-студия, разработка, php, html5, css3">
-    <meta name='yandex-verification' content='7b06ca2324c21a0d' />
-    <link href="/css/style.css" rel="stylesheet" type="text/css">
-    <link rel="shortcut icon" href="/favicon.ico">
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <title>Веб-студия «Мой голос» - Все проекты</title>
-</head>
 <body>
-    <div class="projects-container">
-        <h1>Все проекты</h1>
+
+    <div class="container">
+
+        <div class="top-line">
+
+            <h1>Все проекты <sup><a href="http://web.moigolos.net/pladm/phpliteadmin.php">&#920;</a></sup></h1>
+
+            <ul>
+                <li>
+                    <a href="/portfolio/">Подборка сайтов из портфолио</a>
+                </li>
+            </ul>
+
+        </div>
+
         <?foreach ($arDBTypesProjects as $arType):?>
             <div class="project-type">
                 <h2><?=$arType['name']?></h2>
@@ -167,7 +224,13 @@ catch (PDOException $e)
                     <ul class="projects-list">
                     <?foreach ($arType['projects'] as $arProject):?>
                         <li>
-                            <?=$arProject['name']?> <a href="<?=$arProject['url']?>">&#963;</a>
+                            <a href="/allprojects/<?=$arProject['name']?>/"><?=$arProject['name']?></a> <a href="<?=$arProject['url']?>">&#963;</a>
+                            <div class="project-info-link">
+                                &#926;
+                                <div class="project-info">
+                                    <?=$arProject['desc']?>
+                                </div>
+                            </div>
                         </li>
                     <?endforeach;?>
                     </ul>
@@ -175,65 +238,19 @@ catch (PDOException $e)
             </div>
         <?endforeach;?>
 
-        <footer class="not-show-in-test">
-            <div>
-                <div class="copyrights centered">
-                    &#169; 2007-2014 <a class="comment" href="http://web.moigolos.net">Веб-студия</a> «Мой голос».&nbsp;&nbsp;
-                    Поддержка проекта <a class="comment" href="http://www.moigolos.net">"Мой голос"</a>.&nbsp;&nbsp;
-                    Верстаем <a href="http://validator.w3.org/check?uri=http://web.moigolos.net/allprojects/">W3C-кошерно</a> :)
-                </div>
-            </div>
+        <div class="project-type">
+            <blockquote>
+                <? echo myExtCites::getOneRandomCite(); ?>
+            </blockquote>
+        </div>
 
-            <!-- Yandex.Metrika informer -->
-            <div style="position: absolute; top: 13px; right: 20px;">
-                <a href="https://metrika.yandex.ru/stat/?id=27041591&amp;from=informer" target="_blank" rel="nofollow"><img src="//bs.yandex.ru/informer/27041591/1_0_FFFFFFFF_EFEFEFFF_0_uniques" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (уникальные посетители)" /></a>
-            </div>
-            <!-- /Yandex.Metrika informer -->
-
-            <!-- Yandex.Metrika counter -->
-            <script type="text/javascript">
-                (function (d, w, c) {
-                    (w[c] = w[c] || []).push(function() {
-                        try {
-                            w.yaCounter27041591 = new Ya.Metrika({
-                                id:27041591,
-                                webvisor:true
-                            });
-                        } catch(e) { }
-                    });
-
-                    var n = d.getElementsByTagName("script")[0],
-                        s = d.createElement("script"),
-                        f = function () { n.parentNode.insertBefore(s, n); };
-                    s.type = "text/javascript";
-                    s.async = true;
-                    s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
-
-                    if (w.opera == "[object Opera]") {
-                        d.addEventListener("DOMContentLoaded", f, false);
-                    } else { f(); }
-                })(document, window, "yandex_metrika_callbacks");
-            </script>
-            <noscript><div><img src="//mc.yandex.ru/watch/27041591" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-            <!-- /Yandex.Metrika counter -->
-
-        </footer>
+        <? showBodyFooter(); ?>
 
     </div>
+
 </body>
 </html>
 <?
-
-/**
- * Функция возвращает true, если ей передан домен 2-го уровня
- * @param  [type] $sDomainName [description]
- * @return [type]              [description]
- */
-function check2LvlDomain($sDomainName)
-{
-    $arSplit = explode('.', $sDomainName);
-    return (count($arSplit) < 3);
-}
 
 // echo '<pre>';
 // print_r($arDBTypes);
@@ -241,28 +258,3 @@ function check2LvlDomain($sDomainName)
 // print_r($arFSProjects);
 // print_r($arDBTypesProjects);
 // echo '</pre>';
-
-// $arData = array(
-//     'name' => $sDir,
-//     'desc' => $sDir,
-//     'url' => 'http://' . $sDir . '/',
-//     'type' => 0
-// );
-
-// $dbLink->prepare('DELECT name FROM people')->execute();
-
-// $sqlFile = dirname(__FILE__) . '/schema.sqlite.sql';
-// @unlink($dbFile);
-// var_dump($dbLink);
-// echo '<pre>';
-// print_r(PDO::getAvailableDrivers());
-// echo '</pre>';
-// $sqls = file_get_contents($sqlFile);
-// foreach (explode(';', $sqls) as $sql)
-// {
-//     if (trim($sql) !== '')
-//     {
-//         $db->exec($sql);
-//     }
-// }
-// http://yii.achievment.ru/pladm/phpliteadmin.php?action=row_view&table=tbl_tag
